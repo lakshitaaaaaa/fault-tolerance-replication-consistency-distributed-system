@@ -178,25 +178,25 @@ To demonstrate failover manually while the main cluster is running:
 
 ### Leader failover and automated test results
 **fault tolerance before any cluster goes down**
-[!photo](results/8.ft.png)
+![photo](results/8.ft.png)
 
 **status before any cluster goes down**
-[!status](results/9.ft.png)
+![status](results/9.ft.png)
 
 **killing the leader**
-[!kill](results/10.kill.png)
+![kill](results/10.kill.png)
 
 **cluster 1 after the leader is killed**
-[!s1](results/11.status1.png)
+![s1](results/11.status1.png)
 
 **cluster 2 after the leader is killed**
-[!s2](results/12.status2.png)
+![s2](results/12.status2.png)
 
 **cluster 3 after the leader is killed**
-[!s3](results/13.status3.png)
+![s3](results/13.status3.png)
 
 **status after the leader is killed**
-[!status](results/14.png)
+![status](results/14.png)
 
 ## Limitations
 
