@@ -169,7 +169,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(result,200 if result.get('ok') else 503)
         return self.send({'error':'not found'},404)
 
-DASH='''<!doctype html>
+DASH='''
+    <!doctype html>
         <html>
             <head>
                 <meta charset="utf-8">
@@ -177,22 +178,78 @@ DASH='''<!doctype html>
                 <title>Replicated KV | Raft</title>
                 <style>
                     *{box-sizing:border-box}
-                    body{margin:0;background:#0c111c;color:#edf2ff;font:15px system-ui}
-                    main{max-width:1100px;margin:auto;padding:42px 24px}.eyebrow{color:#8c9bb7;text-transform:uppercase;letter-spacing:.14em;font-size:12px}
-                    h1{font-size:34px;margin:8px 0}.sub{color:#aab6ca;margin-bottom:28px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-                    .card,.panel{background:#151e2e;border:1px solid #263349;border-radius:14px;padding:18px}
-                    .card h2{font-size:15px;margin:0 0 12px;color:#aab6ca}
-                    .role{font-size:21px;font-weight:700}.leader{color:#62e6b2}
-                    .follower{color:#92b4ff}.meta{color:#9eacc1;font-size:13px;margin-top:10px}
-                    .panel{margin-top:18px}.panel h2{margin:0 0 14px}
-                    .row{display:flex;gap:10px;margin-bottom:12px}input{background:#0d1421;border:1px solid #31415c;color:white;border-radius:8px;padding:11px;flex:1}
-                    button{background:#7c91ff;color:#101629;border:0;border-radius:8px;padding:0 18px;font-weight:700;cursor:pointer}
-                    .values{font-family:ui-monospace,monospace;color:#c9d5ea;white-space:pre-wrap}
-                    .pill{display:inline-block;background:#1c2b41;padding:5px 9px;border-radius:99px;color:#b9c9e4;font-size:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}
-                    main{padding:26px 16px}}
+                    body{margin:0;
+                        background:#fff0f5;
+                        color:#563d4a;
+                        font:15px system-ui
+                        }
+                    main{max-width:1100px;
+                        margin:auto;
+                        padding:42px 24px
+                        }
+                    .eyebrow{color:#a96f85;
+                        text-transform:uppercase;
+                        letter-spacing:.14em;
+                        font-size:12px
+                        }
+                    h1{font-size:34px;
+                        margin:8px 0
+                        }
+                    .sub{color:#9a7183;
+                        margin-bottom:28px
+                        }
+                    .grid{display:grid;
+                        grid-template-columns:repeat(3,1fr);
+                        gap:14px
+                        }
+                    .card,.panel{background:#fffafd;
+                        border:1px solid #f1d2df;
+                        box-shadow:0 4px 14px rgba(184,91,128,.09);
+                        border-radius:14px;
+                        padding:18px
+                        }
+                    .card h2{font-size:15px;
+                        margin:0 0 12px;
+                        color:#9a7183}.role{font-size:21px;
+                        font-weight:700}.leader{color:#c04d78}.follower{color:#9676ad}.meta{color:#9a7183;
+                        font-size:13px;margin-top:10px}.panel{margin-top:18px}.panel h2{margin:0 0 14px}.row{display:flex;
+                        gap:10px;
+                        margin-bottom:12px
+                        }
+                    input{background:#fff7f2;
+                        border:1px solid #f0d8d2;
+                        color:#563d4a;
+                        border-radius:8px;
+                        padding:11px;
+                        flex:1
+                        }
+                    input::placeholder{color:#b98b9d}
+                    input:focus{outline:2px solid #dfb9e5;
+                            outline-offset:1px
+                            }
+                        button{background:#f4bfd0;
+                            color:#693f54;border:0;
+                            border-radius:8px;
+                            padding:0 18px;
+                            font-weight:700;
+                            cursor:pointer
+                            }
+                        button:hover{background:#efaec3}
+                        .values{font-family:ui-monospace,monospace;
+                            color:#704d5e;
+                            white-space:pre-wrap
+                            }
+                        .pill{display:inline-block;
+                            background:#fbe1eb;
+                            padding:5px 9px;
+                            border-radius:99px;
+                            color:#8b5d75;
+                            font-size:12px
+                            }
+                        @media(max-width:700px){.grid{grid-template-columns:1fr} main{padding:26px 16px}}
                 </style>
             </head>
-
+            
             <body>
                 <main>
                     <div class="eyebrow">Distributed Systems · Raft</div>
@@ -208,62 +265,97 @@ DASH='''<!doctype html>
                         </div>
                         <div id="result" class="meta">A successful write is acknowledged after majority replication.</div>
                     </section>
+                    
                     <section class="panel">
                         <h2>Committed state</h2>
                         <div id="values" class="values">Loading…</div>
                     </section>
+                    
                     <div class="meta">
                         <span class="pill">Linearizable writes</span> 
                         <span class="pill">Crash recovery</span> 
                         <span class="pill">Majority quorum</span>
                     </div>
                 </main>
-            
+                
                 <script>
-                    const ports=[
-                                8001,
-                                8002,
-                                8003
-                            ];
-                        async function refresh()
+                    const ports=[8001,8002,8003];
+                    async function refresh()
+                    {
+                        let xs=await Promise.all(
+                            ports.map(
+                                async p=>{
+                                    try
+                                    {
+                                        return await fetch(`http://${location.hostname}:${p}/health`).then(r=>r.json())
+                                    }
+                                    catch
+                                    {
+                                        return {id:p-8000,role:'offline'}
+                                    }
+                                }
+                            )
+                        );
+                        document.querySelector('#nodes').innerHTML=
+                            xs.map(
+                                x=>`
+                                    <article class="card">
+                                        <h2>Replica ${x.id}</h2>
+                                        <div class="role ${x.role==='leader'?'leader':'follower'}">
+                                            ${x.role.toUpperCase()}
+                                        </div>
+                                        <div class="meta">
+                                            Term ${x.term??'—'} · Commit index ${x.commit_index??'—'}
+                                        </div>
+                                        <div class="meta">
+                                            ${x.leader?'Leader: node '+x.leader:'Awaiting election'}
+                                        </div>
+                                    </article>
+                                `
+                            ).join('');
+                        let l=xs.find(
+                            x=>x.role==='leader'
+                            );
+                        document.querySelector('#values').textContent=l?JSON.stringify(l.values,null,2):'No leader available';
+                    }
+                    async function put()
+                    {
+                        let key=document.querySelector('#key').value,
+                            value=document.querySelector('#value').value;
+                        let leaders=[];
+                        for(let p of ports)
                         {
-                            let xs=await Promise.all
-                                (
-                                    ports.map
-                                    (
-                                        async p=>
-                                        {
-                                            try
-                                            {
-                                                return await fetch(`http://${location.hostname}:${p}/health`).then(r=>r.json())
-                                            }
-                                            catch{return {id:p-8000,role:'offline'}}
-                                        }
-                                    )
-                                );
-                                document.querySelector('#nodes')
-                                        .innerHTML=xs
-                                        .map
-                                            (x=>`
-                                                <article class="card">
-                                                    <h2>Replica ${x.id}</h2>
-                                                    <div class="role ${x.role==='leader'?'leader':'follower'}">${x.role.toUpperCase()}</div>
-                                                    <div class="meta">Term ${x.term??'—'} · Commit index ${x.commit_index??'—'}</div>
-                                                    <div class="meta">${x.leader?'Leader: node '+x.leader:'Awaiting election'}</div>
-                                                </article>`
-                                            )
-                                        .join('');
-                                        let l=xs
-                                            .find(x=>x.role==='leader');
-                                                document.querySelector('#values')
-                                            .textContent=l?JSON.stringify(l.values,null,2):'No leader available';}async function put()
-                                                {let key=document.querySelector('#key').value,value=document.querySelector('#value').value;let leaders=[];for(let p of ports){try{let h=await fetch(`http://${location.hostname}:${p}/health`).then(r=>r.json());if(h.role==='leader')leaders.push(p)}catch{}}if(!leaders.length){document.querySelector('#result').textContent='No leader available';return}
-                                        let r=await fetch(`http://${location.hostname}:${leaders[0]}/kv`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value})});
-                                                document.querySelector('#result').textContent=JSON.stringify(await r.json());refresh()}refresh();setInterval(refresh,1000)
+                            try
+                            {
+                                let h=await fetch(`http://${location.hostname}:${p}/health`).then(r=>r.json());
+                                if(h.role==='leader')leaders.push(p)
+                            }
+                            catch{}
+                        }
+
+                        if(!leaders.length)
+                        {
+                            document.querySelector('#result').textContent='No leader available';
+                            return
+                        }
+                        let r=await fetch(`http://${location.hostname}:${leaders[0]}/kv`,
+                            {
+                                method:'POST',
+                                headers:{'Content-Type':'application/json'},
+                                body:JSON.stringify({key,value})
+                            });
+                        document.querySelector('#result').textContent=JSON.stringify(await r.json());
+                        refresh()
+                    }
+                    
+                    refresh();
+                        
+                    setInterval(refresh,1000)
                 </script>
             </body>
         </html>
     '''
+
 
 def main():
  p=argparse.ArgumentParser(); p.add_argument('--id',type=int,required=True); p.add_argument('--port',type=int,required=True); p.add_argument('--peers',required=True,help='id=url,id=url'); p.add_argument('--data-dir',default='data'); a=p.parse_args()
