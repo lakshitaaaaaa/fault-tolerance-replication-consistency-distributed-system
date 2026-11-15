@@ -149,21 +149,52 @@ To demonstrate failover manually while the main cluster is running:
 └── start_cluster.sh            # Starts the three local replica processes
 ```
 
-## Screenshots
-
-Add screenshots of your actual run to `docs/screenshots/` and update the image paths below. These slots are intended for the dashboard and the observed failover/test result.
+## Results
 
 ### Running cluster dashboard
+**cluster 1 (http://127.0.0.1:8001)**
+![cluster1](results/1.before1.png)
 
-> **Screenshot placeholder** — Save the running dashboard as `docs/screenshots/dashboard.png`, then replace this note with `![Running cluster dashboard](docs/screenshots/dashboard.png)`.
+**cluster 2 (http://127.0.0.1:8002)**
+![cluster2](results/2.before2.png)
 
-### Leader failover
+**cluster 3 (http://127.0.0.1:8003)**
+![cluster3](results/3.before3.png)
 
-> **Screenshot placeholder** — Save the dashboard after leader failover as `docs/screenshots/leader-failover.png`, then replace this note with `![Leader failover](docs/screenshots/leader-failover.png)`.
+### Adding key-value pair
+**adding kv pair in cluster3**
+![adding kv in cluster3](results/4.addingkv.png)
 
-### Automated test result
+**cluster 1 after addition of kv pair**
+![cluster1](results/7.afterkv1.png)
 
-> **Screenshot placeholder** — Save the passing test output as `docs/screenshots/test-results.png`, then replace this note with `![Automated test result](docs/screenshots/test-results.png)`.
+**cluster 2 after addition of kv pair**
+![cluster2](results/6.afterkv2.png)
+
+**cluster 3 after addition of kv pair**
+![cluster3](results/5afterkv3.png)
+
+### Leader failover and automated test results
+**fault tolerance before any cluster goes down**
+[!photo](results/8.ft.png)
+
+**status before any cluster goes down**
+[!status](results/9.ft.png)
+
+**killing the leader**
+[!kill](results/10.kill.png)
+
+**cluster 1 after the leader is killed**
+[!s1](results/11.status1.png)
+
+**cluster 2 after the leader is killed**
+[!s2](results/12.status2.png)
+
+**cluster 3 after the leader is killed**
+[!s3](results/13.status3.png)
+
+**status after the leader is killed**
+[!status](results/14.png)
 
 ## Limitations
 
