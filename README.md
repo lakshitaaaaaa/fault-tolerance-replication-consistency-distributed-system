@@ -66,7 +66,7 @@ From the project root, run:
 sh start_cluster.sh
 ```
 
-The script starts all three replicas. It supports the `app/node.py` layout in this project and the `src/fault_tolerance_replication_consistency_ds/node.py` layout. Running it through `sh` also works if the executable permission was lost when copying the project.
+The script starts all three replicas. It supports the `src/fault_tolerance_replication_consistency_ds/node.py` layout. Running it through `sh` also works if the executable permission was lost when copying the project.
 
 Wait a few seconds for an election, then open [http://127.0.0.1:8001](http://127.0.0.1:8001). The dashboard polls all three replicas and displays the current leader.
 
@@ -136,17 +136,15 @@ To demonstrate failover manually while the main cluster is running:
 
 ```text
 .
-├── app/
-│   └── node.py                 # Replica server, Raft-style protocol, HTTP API, dashboard
-├── data/                       # Persistent JSON state created when the cluster runs
-├── docs/
-│   └── screenshots/            # Place screenshots here
-├── outputs/
-│   └── TEST_RESULTS.md         # Recorded end-to-end test result
+├── src/
+│   └── fault_tolerance_replication_consistency_ds
+|       |__ node.py                                   # Replica server, Raft-style protocol, HTTP API, dashboard
+├── data/                                             # Persistent JSON state created when the cluster runs
+├── results/                                          # Place screenshots here                 
 ├── tests/
-│   └── test_cluster.py         # Automated failover and recovery test
+│   └── test_cluster.py                               # Automated failover and recovery test
 ├── README.md
-└── start_cluster.sh            # Starts the three local replica processes
+└── start_cluster.sh                                  # Starts the three local replica processes
 ```
 
 ## Results
