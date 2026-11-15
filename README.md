@@ -161,6 +161,7 @@ To demonstrate failover manually while the main cluster is running:
 **cluster 3 (http://127.0.0.1:8003)**
 ![cluster3](results/3.before3.png)
 
+
 ### Adding key-value pair
 **adding kv pair in cluster3**
 ![adding kv in cluster3](results/4.addingkv.png)
@@ -173,6 +174,7 @@ To demonstrate failover manually while the main cluster is running:
 
 **cluster 3 after addition of kv pair**
 ![cluster3](results/5afterkv3.png)
+
 
 ### Leader failover and automated test results
 **fault tolerance before any cluster goes down**
